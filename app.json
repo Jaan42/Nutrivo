@@ -37,6 +37,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3d6b815b-e34c-42a8-a122-cc55b9520675"
+      }
+    },
+    "owner": "naacs-team"
   }
 }

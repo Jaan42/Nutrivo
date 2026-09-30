@@ -1,98 +1,192 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+} from "react-native";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import {
+  createUserWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import {
+  doc,
+  setDoc,
+  getDoc,
+} from "firebase/firestore";
+
+import { auth, db } from "../config/firebase";
 
 export default function HomeScreen() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+
+  const testFirebase = async () => {
+    try {
+      setMessage("Testing Firebase...");
+
+      // 1. Create Firebase Authentication account
+      const userCredential =
+        await createUserWithEmailAndPassword(
+          auth,
+          email.trim(),
+          password
+        );
+
+      const uid = userCredential.user.uid;
+
+      // 2. Save a test profile in Firestore
+      await setDoc(doc(db, "users", uid), {
+        name: "Nutrivo Test User",
+        email: email.trim(),
+        test: true,
+      });
+
+      // 3. Read the profile back
+      const userDoc = await getDoc(
+        doc(db, "users", uid)
+      );
+
+      if (userDoc.exists()) {
+        setMessage(
+          `SUCCESS!\n\nAuthentication works.\nFirestore write works.\nFirestore read works.\n\nUID: ${uid}`
+        );
+      } else {
+        setMessage(
+          "Authentication worked, but Firestore read failed."
+        );
+      }
+    } catch (error: any) {
+      setMessage(
+        `ERROR:\n${error.code ?? ""}\n${error.message}`
+      );
+    }
+  };
+
+  const testLogout = async () => {
+    try {
+      await signOut(auth);
+      setMessage("Logout successful.");
+    } catch (error: any) {
+      setMessage(error.message);
+    }
+  };
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+    <View style={styles.container}>
+      <Text style={styles.logo}>Nutrivo</Text>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+      <Text style={styles.subtitle}>
+        Firebase Service Test
+      </Text>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+      <TextInput
+        style={styles.input}
+        placeholder="Test Email"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+      />
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+
+      <Pressable
+        style={styles.button}
+        onPress={testFirebase}
+      >
+        <Text style={styles.buttonText}>
+          Test Firebase
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={styles.logoutButton}
+        onPress={testLogout}
+      >
+        <Text style={styles.logoutText}>
+          Test Logout
+        </Text>
+      </Pressable>
+
+      <Text style={styles.message}>
+        {message}
+      </Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+    justifyContent: "center",
+    padding: 24,
+    maxWidth: 500,
+    width: "100%",
+    alignSelf: "center",
+    backgroundColor: "#F8FBF3",
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+
+  logo: {
+    fontSize: 38,
+    fontWeight: "800",
+    textAlign: "center",
+    color: "#176B3A",
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+
+  subtitle: {
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 30,
   },
-  title: {
-    textAlign: 'center',
+
+  input: {
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#DADADA",
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 12,
   },
-  code: {
-    textTransform: 'uppercase',
+
+  button: {
+    backgroundColor: "#176B3A",
+    padding: 15,
+    borderRadius: 12,
+    alignItems: "center",
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+
+  buttonText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+  },
+
+  logoutButton: {
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: "#176B3A",
+    padding: 14,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+
+  logoutText: {
+    color: "#176B3A",
+    fontWeight: "600",
+  },
+
+  message: {
+    marginTop: 24,
+    lineHeight: 22,
   },
 });

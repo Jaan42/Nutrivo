@@ -2,6 +2,11 @@
 
 # dependencies
 node_modules/
+.expo/
+.env
+.env.*
+.idea/
+
 
 # Expo
 .expo/
