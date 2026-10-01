@@ -1,6 +1,6 @@
 export type LoginValidationErrors = Partial<Record<"email" | "password", string>>;
 export type RegistrationValidationErrors = Partial<
-  Record<"name" | "email" | "password" | "confirmPassword", string>
+  Record<"firstName" | "lastName" | "email" | "password" | "confirmPassword", string>
 >;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -22,7 +22,8 @@ export function validateLogin(email: string, password: string): LoginValidationE
 }
 
 export function validateRegistration(
-  name: string,
+  firstName: string,
+  lastName: string,
   email: string,
   password: string,
   confirmPassword: string,
@@ -30,7 +31,8 @@ export function validateRegistration(
   const errors: RegistrationValidationErrors = {};
   const emailError = getEmailError(email);
 
-  if (!name.trim()) errors.name = "Enter your full name.";
+  if (!firstName.trim()) errors.firstName = "Enter your first name.";
+  if (!lastName.trim()) errors.lastName = "Enter your last name.";
   if (emailError) errors.email = emailError;
   if (!password.trim()) {
     errors.password = "Enter a password.";

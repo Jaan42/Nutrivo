@@ -12,7 +12,8 @@ import { validateRegistration, type RegistrationValidationErrors } from '@/utils
 import { getFriendlyAuthError } from '@/utils/firebase-errors';
 
 export default function RegisterScreen() {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,14 +24,15 @@ export default function RegisterScreen() {
   async function handleRegister() {
     if (loading) return;
 
-    const nextErrors = validateRegistration(name, email, password, confirmPassword);
+    const nextErrors = validateRegistration(firstName, lastName, email, password, confirmPassword);
     setErrors(nextErrors);
     setRequestError(null);
     if (Object.keys(nextErrors).length > 0) return;
 
     setLoading(true);
     try {
-      await registerAccount(name, email, password);
+      const fullName = `${firstName.trim()} ${lastName.trim()}`;
+      await registerAccount(fullName, email, password);
       router.replace('/profile-setup');
     } catch (error) {
       setRequestError(getFriendlyAuthError(error));
@@ -56,18 +58,32 @@ export default function RegisterScreen() {
 
       <View style={styles.form}>
         <FormInput
-          label="Full Name"
-          value={name}
+          label="First Name"
+          value={firstName}
           onChangeText={(value) => {
-            setName(value);
-            setErrors((current) => ({ ...current, name: undefined }));
+            setFirstName(value);
+            setErrors((current) => ({ ...current, firstName: undefined }));
             setRequestError(null);
           }}
-          error={errors.name}
+          error={errors.firstName}
           editable={!loading}
-          autoComplete="name"
+          autoComplete="given-name"
           autoCapitalize="words"
-          placeholder="Your full name"
+          placeholder="Your first name"
+        />
+        <FormInput
+          label="Last Name"
+          value={lastName}
+          onChangeText={(value) => {
+            setLastName(value);
+            setErrors((current) => ({ ...current, lastName: undefined }));
+            setRequestError(null);
+          }}
+          error={errors.lastName}
+          editable={!loading}
+          autoComplete="family-name"
+          autoCapitalize="words"
+          placeholder="Your last name"
         />
         <FormInput
           label="Email"
