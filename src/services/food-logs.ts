@@ -1,7 +1,7 @@
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
 import { auth, db } from '@/config/firebase';
-import type { ManualFoodLogInput } from '@/types/food-log';
+import type { FoodLogSource, ManualFoodLogInput } from '@/types/food-log';
 import { getLocalDateKey } from '@/utils/date';
 import { calculateConsumedNutrition } from '@/utils/serving-calculations';
 
@@ -19,7 +19,10 @@ export class FoodLogSaveError extends Error {
   }
 }
 
-export async function saveManualFoodLog(input: ManualFoodLogInput): Promise<string> {
+async function saveFoodLog(
+  input: ManualFoodLogInput,
+  source: FoodLogSource,
+): Promise<string> {
   const user = auth.currentUser;
   if (!user) throw new FoodLogNotSignedInError();
 
@@ -33,7 +36,7 @@ export async function saveManualFoodLog(input: ManualFoodLogInput): Promise<stri
       foodName: input.foodName,
       mealType: input.mealType,
       dateKey: getLocalDateKey(),
-      source: 'manual',
+      source,
       servingSize: input.servingSize,
       servingsConsumed: input.servingsConsumed,
       ...input.nutritionPerServing,
@@ -46,4 +49,14 @@ export async function saveManualFoodLog(input: ManualFoodLogInput): Promise<stri
   } catch {
     throw new FoodLogSaveError();
   }
+}
+
+export function saveManualFoodLog(input: ManualFoodLogInput): Promise<string> {
+  return saveFoodLog(input, 'manual');
+}
+
+export function saveNutritionLabelFoodLog(
+  input: ManualFoodLogInput,
+): Promise<string> {
+  return saveFoodLog(input, 'nutrition-label');
 }

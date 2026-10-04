@@ -22,7 +22,7 @@ const OPTIONAL_NUTRIENTS = [
   ['fiberPerServing', 'Fiber'],
 ] as const;
 
-function parseDecimal(value: string): number | null {
+export function parseNutritionDecimal(value: string): number | null {
   const normalized = value.trim();
   if (!normalized || !DECIMAL_PATTERN.test(normalized)) return null;
 
@@ -30,25 +30,25 @@ function parseDecimal(value: string): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function validateRequiredNutrient(
+export function validateRequiredNutritionValue(
   value: string,
   label: string,
 ): string | undefined {
   if (!value.trim()) return `Enter ${label.toLowerCase()} per serving.`;
 
-  const parsed = parseDecimal(value);
+  const parsed = parseNutritionDecimal(value);
   if (parsed === null) return `Enter a valid ${label.toLowerCase()} amount.`;
   if (parsed < 0) return `${label} cannot be negative.`;
   return undefined;
 }
 
-function validateOptionalNutrient(
+export function validateOptionalNutritionValue(
   value: string,
   label: string,
 ): string | undefined {
   if (!value.trim()) return undefined;
 
-  const parsed = parseDecimal(value);
+  const parsed = parseNutritionDecimal(value);
   if (parsed === null) return `Enter a valid ${label.toLowerCase()} amount.`;
   if (parsed < 0) return `${label} cannot be negative.`;
   return undefined;
@@ -63,16 +63,16 @@ export function validateManualFoodForm(
   if (!values.servingSize.trim()) errors.servingSize = 'Enter a serving size.';
 
   for (const [field, label] of REQUIRED_NUTRIENTS) {
-    const error = validateRequiredNutrient(values[field], label);
+    const error = validateRequiredNutritionValue(values[field], label);
     if (error) errors[field] = error;
   }
 
   for (const [field, label] of OPTIONAL_NUTRIENTS) {
-    const error = validateOptionalNutrient(values[field], label);
+    const error = validateOptionalNutritionValue(values[field], label);
     if (error) errors[field] = error;
   }
 
-  const servingsConsumed = parseDecimal(values.servingsConsumed);
+  const servingsConsumed = parseNutritionDecimal(values.servingsConsumed);
   if (!values.servingsConsumed.trim()) {
     errors.servingsConsumed = 'Enter the number of servings consumed.';
   } else if (servingsConsumed === null) {
@@ -88,18 +88,18 @@ export function validateManualFoodForm(
   return errors;
 }
 
-function parseOptionalNutrient(value: string): OptionalNutritionValue {
-  return value.trim() ? parseDecimal(value) : null;
+export function parseOptionalNutritionValue(value: string): OptionalNutritionValue {
+  return value.trim() ? parseNutritionDecimal(value) : null;
 }
 
 function parseNutrition(values: ManualFoodFormValues): PerServingNutrition | null {
-  const caloriesPerServing = parseDecimal(values.caloriesPerServing);
-  const proteinPerServing = parseDecimal(values.proteinPerServing);
-  const carbohydratesPerServing = parseDecimal(values.carbohydratesPerServing);
-  const fatPerServing = parseDecimal(values.fatPerServing);
-  const sugarPerServing = parseOptionalNutrient(values.sugarPerServing);
-  const sodiumPerServing = parseOptionalNutrient(values.sodiumPerServing);
-  const fiberPerServing = parseOptionalNutrient(values.fiberPerServing);
+  const caloriesPerServing = parseNutritionDecimal(values.caloriesPerServing);
+  const proteinPerServing = parseNutritionDecimal(values.proteinPerServing);
+  const carbohydratesPerServing = parseNutritionDecimal(values.carbohydratesPerServing);
+  const fatPerServing = parseNutritionDecimal(values.fatPerServing);
+  const sugarPerServing = parseOptionalNutritionValue(values.sugarPerServing);
+  const sodiumPerServing = parseOptionalNutritionValue(values.sodiumPerServing);
+  const fiberPerServing = parseOptionalNutritionValue(values.fiberPerServing);
 
   if (
     caloriesPerServing === null ||
@@ -134,7 +134,7 @@ export function parseManualFoodForm(
   if (Object.keys(validateManualFoodForm(values)).length > 0) return null;
 
   const nutritionPerServing = parseNutrition(values);
-  const servingsConsumed = parseDecimal(values.servingsConsumed);
+  const servingsConsumed = parseNutritionDecimal(values.servingsConsumed);
   if (!nutritionPerServing || servingsConsumed === null || !values.mealType) return null;
 
   return {
@@ -151,7 +151,7 @@ export function parseManualFoodPreview(
   values: ManualFoodFormValues,
 ): Pick<ManualFoodLogInput, 'nutritionPerServing' | 'servingsConsumed'> | null {
   const nutritionPerServing = parseNutrition(values);
-  const servingsConsumed = parseDecimal(values.servingsConsumed);
+  const servingsConsumed = parseNutritionDecimal(values.servingsConsumed);
 
   if (!nutritionPerServing || servingsConsumed === null || servingsConsumed <= 0) return null;
   return { nutritionPerServing, servingsConsumed };

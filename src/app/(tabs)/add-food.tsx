@@ -70,8 +70,7 @@ export default function AddFoodScreen() {
 
       <View style={[styles.options, wide && styles.optionsWide]}>
         <FoodOptionCard
-          accessibilityHint="Opens the nutrition label scanner placeholder"
-          badge="Coming next"
+          accessibilityHint="Opens camera and gallery options for a Nutrition Facts label"
           description="Scan a packaged food label to capture its nutrition information."
           glyph={'\u25A3'}
           onPress={() => router.push('/scan-nutrition-label')}

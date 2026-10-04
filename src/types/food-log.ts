@@ -4,6 +4,8 @@ export type MealType = (typeof MEAL_TYPES)[number];
 
 export type OptionalNutritionValue = number | null;
 
+export type FoodLogSource = 'manual' | 'nutrition-label';
+
 export interface PerServingNutrition {
   caloriesPerServing: number;
   proteinPerServing: number;

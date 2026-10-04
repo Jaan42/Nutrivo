@@ -26,6 +26,22 @@
     "plugins": [
       "expo-router",
       [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Nutrivo to use your camera to photograph Nutrition Facts labels.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Nutrivo to access photos you select for Nutrition Facts labels.",
+          "cameraPermission": "Allow Nutrivo to use your camera to photograph Nutrition Facts labels.",
+          "microphonePermission": false
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#F8FAF3"
