@@ -1,4 +1,8 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 
 import { auth, db } from "@/config/firebase";
@@ -34,4 +38,19 @@ export async function signInAndCheckProfile(email: string, password: string): Pr
 
   // A missing document can be completed through Profile Setup later.
   return userSnapshot.exists() && userSnapshot.data().profileCompleted === true;
+}
+
+export class AccountSignOutError extends Error {
+  constructor() {
+    super("We couldn't sign you out. Please try again.");
+    this.name = "AccountSignOutError";
+  }
+}
+
+export async function signOutAccount(): Promise<void> {
+  try {
+    await signOut(auth);
+  } catch {
+    throw new AccountSignOutError();
+  }
 }

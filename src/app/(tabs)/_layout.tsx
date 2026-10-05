@@ -1,8 +1,18 @@
-import { Tabs } from 'expo-router';
-import { Platform, useWindowDimensions, type ColorValue } from 'react-native';
+import { Redirect, Tabs } from 'expo-router';
+import {
+  ActivityIndicator,
+  Platform,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  type ColorValue,
+} from 'react-native';
 
+import { PrimaryButton } from '@/components/buttons';
+import { ScreenContainer } from '@/components/screen-container';
 import { TabIcon, type TabIconName } from '@/components/tab-icon';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 const tabIcon = (name: TabIconName, emphasized = false) =>
   function TabBarIcon({ color, size }: { color: ColorValue; size: number }) {
@@ -12,6 +22,39 @@ const tabIcon = (name: TabIconName, emphasized = false) =>
 export default function TabsLayout() {
   const { width } = useWindowDimensions();
   const usesSideBySideLabels = Platform.OS === 'web' && width >= 768;
+  const profileState = useUserProfile();
+  const loading =
+    profileState.authLoading ||
+    (profileState.user !== null && profileState.profileLoading);
+
+  if (loading) {
+    return (
+      <ScreenContainer width="form" contentStyle={styles.centeredState}>
+        <ActivityIndicator color={Colors.primary} size="large" />
+        <Text style={styles.stateTitle}>Loading your Nutrivo profile</Text>
+      </ScreenContainer>
+    );
+  }
+
+  if (profileState.authError || profileState.profileError) {
+    return (
+      <ScreenContainer width="form" contentStyle={styles.centeredState}>
+        <Text style={styles.stateTitle}>Profile unavailable</Text>
+        <Text style={styles.stateMessage}>
+          {profileState.authError ?? profileState.profileError}
+        </Text>
+        <PrimaryButton label="Try Again" onPress={profileState.reload} />
+      </ScreenContainer>
+    );
+  }
+
+  if (!profileState.user) {
+    return <Redirect href="/login" />;
+  }
+
+  if (!profileState.profile?.profileCompleted) {
+    return <Redirect href="/profile-setup" />;
+  }
 
   return (
     <Tabs
@@ -80,3 +123,26 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  centeredState: {
+    alignItems: 'center',
+    flexGrow: 1,
+    gap: Spacing.md,
+    justifyContent: 'center',
+  },
+  stateTitle: {
+    color: Colors.text,
+    fontSize: Typography.sizes.section,
+    fontWeight: Typography.weights.bold,
+    lineHeight: Typography.lineHeights.section,
+    textAlign: 'center',
+  },
+  stateMessage: {
+    color: Colors.textMuted,
+    fontSize: Typography.sizes.body,
+    lineHeight: Typography.lineHeights.body,
+    maxWidth: 380,
+    textAlign: 'center',
+  },
+});

@@ -62,3 +62,47 @@ export async function saveNutritionProfile(profile: NutritionProfile): Promise<v
     throw new NutritionProfileSaveError();
   }
 }
+
+/** Updates editable profile fields without replacing account metadata or unrelated data. */
+export async function updateNutritionProfile(
+  name: string,
+  profile: NutritionProfile,
+): Promise<void> {
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new ProfileNotSignedInError();
+  }
+
+  const normalizedName = name.trim();
+  if (!normalizedName) {
+    throw new NutritionProfileSaveError();
+  }
+
+  try {
+    await setDoc(
+      doc(db, "users", user.uid),
+      {
+        name: normalizedName,
+        age: profile.age,
+        sex: profile.sex,
+        heightCm: profile.heightCm,
+        weightKg: profile.weightKg,
+        activityLevel: profile.activityLevel,
+        goal: profile.goal,
+        bmi: profile.bmi,
+        bmr: profile.bmr,
+        tdee: profile.tdee,
+        calorieTarget: profile.calorieTarget,
+        proteinTarget: profile.proteinTarget,
+        carbohydrateTarget: profile.carbohydrateTarget,
+        fatTarget: profile.fatTarget,
+        profileCompleted: true,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
+  } catch {
+    throw new NutritionProfileSaveError();
+  }
+}
