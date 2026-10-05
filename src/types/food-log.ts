@@ -40,6 +40,17 @@ export interface PendingFoodEntry extends ManualFoodLogInput {
   consumedNutrition: ConsumedNutrition;
 }
 
+/** A normalized users/{uid}/foodLogs document safe for History and Details UI. */
+export interface FoodLogRecord extends PerServingNutrition, ConsumedNutrition {
+  id: string;
+  foodName: string;
+  servingSize: string;
+  mealType: MealType | null;
+  servingsConsumed: number;
+  source: FoodLogSource | null;
+  dateKey: string;
+}
+
 /** Text fields remain strings while the person is typing. */
 export interface ManualFoodFormValues {
   foodName: string;
