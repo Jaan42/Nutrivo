@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
@@ -10,10 +10,6 @@ import { NutritionCard } from '@/components/nutrition-card';
 import { ScreenContainer } from '@/components/screen-container';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { useNutritionLabelScan } from '@/context/nutrition-label-scan';
-import {
-  FoodLogNotSignedInError,
-  saveNutritionLabelFoodLog,
-} from '@/services/food-logs';
 import {
   MEAL_TYPES,
   type ConsumedNutrition,
@@ -76,16 +72,14 @@ function NutritionValues({ values }: { values: DisplayNutrition | ConsumedNutrit
 
 export default function NutritionLabelServingScreen() {
   const { width } = useWindowDimensions();
-  const { reset, reviewedNutrition } = useNutritionLabelScan();
+  const { clearPendingFoodEntry, reset, reviewedNutrition, stageFoodEntry } =
+    useNutritionLabelScan();
   const [values, setValues] = useState<NutritionLabelServingFormValues>({
     servingsConsumed: '1',
     mealType: 'Breakfast',
   });
   const [errors, setErrors] = useState<NutritionLabelServingErrors>({});
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [needsLogin, setNeedsLogin] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const savingRef = useRef(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const wide = width >= 640;
 
   const preview = useMemo(() => {
@@ -101,8 +95,8 @@ export default function NutritionLabelServingScreen() {
   ) {
     setValues((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: undefined }));
-    setSaveError(null);
-    setNeedsLogin(false);
+    setFormError(null);
+    clearPendingFoodEntry();
   }
 
   function cancelFlow() {
@@ -115,37 +109,25 @@ export default function NutritionLabelServingScreen() {
     router.replace('/manual-food-entry');
   }
 
-  async function saveFood() {
-    if (!reviewedNutrition || savingRef.current) return;
+  function continueToInsight() {
+    if (!reviewedNutrition) return;
 
     const nextErrors = validateNutritionLabelServing(values);
     setErrors(nextErrors);
-    setSaveError(null);
-    setNeedsLogin(false);
+    setFormError(null);
     if (Object.keys(nextErrors).length > 0) return;
 
     const input = toNutritionLabelFoodLogInput(reviewedNutrition, values);
     if (!input) {
-      setSaveError('Review the serving amount and meal, then try again.');
+      setFormError('Review the serving amount and meal, then try again.');
       return;
     }
 
-    savingRef.current = true;
-    setSaving(true);
     try {
-      await saveNutritionLabelFoodLog(input);
-      reset();
-      router.replace('/home');
-    } catch (error) {
-      if (error instanceof FoodLogNotSignedInError) {
-        setNeedsLogin(true);
-        setSaveError('Please log in before adding food.');
-      } else {
-        setSaveError("We couldn't save this food. Check your connection and try again.");
-      }
-    } finally {
-      savingRef.current = false;
-      setSaving(false);
+      stageFoodEntry(input, 'nutrition-label');
+      router.push('/nutrition-insight');
+    } catch {
+      setFormError('We could not calculate this serving. Review the nutrition values.');
     }
   }
 
@@ -201,8 +183,7 @@ export default function NutritionLabelServingScreen() {
                 <Pressable
                   accessibilityLabel={`${mealType} meal category`}
                   accessibilityRole="button"
-                  accessibilityState={{ disabled: saving, selected }}
-                  disabled={saving}
+                  accessibilityState={{ selected }}
                   key={mealType}
                   onPress={() => updateField('mealType', mealType)}
                   style={({ pressed }) => [
@@ -233,8 +214,7 @@ export default function NutritionLabelServingScreen() {
                   <Pressable
                     accessibilityLabel={`${serving} servings`}
                     accessibilityRole="button"
-                    accessibilityState={{ disabled: saving, selected }}
-                    disabled={saving}
+                    accessibilityState={{ selected }}
                     key={serving}
                     onPress={() => updateField('servingsConsumed', serving)}
                     style={({ pressed }) => [
@@ -252,7 +232,6 @@ export default function NutritionLabelServingScreen() {
             </View>
             <FormInput
               accessibilityHint="Enter a positive decimal number of servings"
-              editable={!saving}
               error={errors.servingsConsumed}
               inputMode="decimal"
               keyboardType="decimal-pad"
@@ -287,23 +266,19 @@ export default function NutritionLabelServingScreen() {
           </View>
         </NutritionCard>
 
-        {saveError ? (
+        {formError ? (
           <View accessibilityLiveRegion="polite" style={styles.errorCard}>
-            <Text style={styles.errorText}>{saveError}</Text>
-            {needsLogin ? (
-              <SecondaryButton label="Go to Log In" onPress={() => router.replace('/login')} />
-            ) : null}
+            <Text style={styles.errorText}>{formError}</Text>
           </View>
         ) : null}
 
         <View style={styles.actions}>
           <PrimaryButton
-            label={saving ? 'Adding Food...' : 'Add Food'}
-            loading={saving}
-            onPress={() => void saveFood()}
+            label="Continue to Nutrition Insight"
+            onPress={continueToInsight}
           />
-          <SecondaryButton disabled={saving} label="Enter Manually" onPress={enterManually} />
-          <SecondaryButton disabled={saving} label="Cancel" onPress={cancelFlow} />
+          <SecondaryButton label="Enter Manually" onPress={enterManually} />
+          <SecondaryButton label="Cancel" onPress={cancelFlow} />
         </View>
       </View>
     </ScreenContainer>

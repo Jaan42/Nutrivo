@@ -19,7 +19,7 @@ export class FoodLogSaveError extends Error {
   }
 }
 
-async function saveFoodLog(
+export async function saveFoodLog(
   input: ManualFoodLogInput,
   source: FoodLogSource,
 ): Promise<string> {

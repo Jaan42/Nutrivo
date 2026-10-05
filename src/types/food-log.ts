@@ -34,6 +34,12 @@ export interface ManualFoodLogInput {
   nutritionPerServing: PerServingNutrition;
 }
 
+/** In-memory data shown on the insight screen before the person confirms the save. */
+export interface PendingFoodEntry extends ManualFoodLogInput {
+  source: FoodLogSource;
+  consumedNutrition: ConsumedNutrition;
+}
+
 /** Text fields remain strings while the person is typing. */
 export interface ManualFoodFormValues {
   foodName: string;
