@@ -12,7 +12,7 @@ import {
 import { AppHeader } from '@/components/app-header';
 import { PrimaryButton } from '@/components/buttons';
 import { ScreenContainer } from '@/components/screen-container';
-import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { Breakpoints, Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { useFoodHistory } from '@/hooks/use-food-history';
 import { MEAL_TYPES, type FoodLogRecord } from '@/types/food-log';
 import { calculateDailyNutritionTotals } from '@/utils/dashboard-calculations';
@@ -24,8 +24,6 @@ import {
   isTodayLocalDateKey,
   millisecondsUntilNextLocalDay,
 } from '@/utils/date';
-
-const WIDE_BREAKPOINT = 760;
 
 function formatNumber(value: number): string {
   const safeValue = Number.isFinite(value) ? Math.max(0, value) : 0;
@@ -55,9 +53,9 @@ function FoodRow({ foodLog }: { foodLog: FoodLogRecord }) {
       }
       style={({ pressed }) => [styles.foodRow, pressed && styles.foodRowPressed]}>
       <View style={styles.foodCopy}>
-        <Text style={styles.foodName}>{displayFoodName(foodLog)}</Text>
-        <Text style={styles.foodServing}>{servingsDescription(foodLog)}</Text>
-        <Text style={styles.foodMacros}>
+        <Text numberOfLines={2} style={styles.foodName}>{displayFoodName(foodLog)}</Text>
+        <Text numberOfLines={1} style={styles.foodServing}>{servingsDescription(foodLog)}</Text>
+        <Text numberOfLines={2} style={styles.foodMacros}>
           P {formatNumber(foodLog.protein)} g · C {formatNumber(foodLog.carbohydrates)} g · F{' '}
           {formatNumber(foodLog.fat)} g
         </Text>
@@ -94,7 +92,8 @@ function MealSection({ title, foodLogs }: { title: string; foodLogs: FoodLogReco
 
 export default function HistoryScreen() {
   const { width } = useWindowDimensions();
-  const wide = width >= WIDE_BREAKPOINT;
+  const compact = width > 0 && width < Breakpoints.compact;
+  const wide = width >= Breakpoints.desktop;
   const [todayDateKey, setTodayDateKey] = useState(() => getLocalDateKey());
   const [selectedDateKey, setSelectedDateKey] = useState(() => getLocalDateKey());
   const history = useFoodHistory(selectedDateKey);
@@ -196,7 +195,7 @@ export default function HistoryScreen() {
             style={({ pressed }) => [styles.dateButton, pressed && styles.dateButtonPressed]}>
             <Text style={styles.dateButtonText}>{'\u2039'} Previous</Text>
           </Pressable>
-          {!selectedIsToday ? (
+          {!selectedIsToday && !compact ? (
             <Pressable
               accessibilityLabel="Return to today"
               accessibilityRole="button"
@@ -221,6 +220,19 @@ export default function HistoryScreen() {
             </Text>
           </Pressable>
         </View>
+        {!selectedIsToday && compact ? (
+          <Pressable
+            accessibilityLabel="Return to today"
+            accessibilityRole="button"
+            onPress={() => setSelectedDateKey(todayDateKey)}
+            style={({ pressed }) => [
+              styles.todayButton,
+              styles.todayButtonCompact,
+              pressed && styles.todayButtonPressed,
+            ]}>
+            <Text style={styles.todayButtonText}>Today</Text>
+          </Pressable>
+        ) : null}
       </View>
 
       {history.foodLogsError ? (
@@ -350,6 +362,9 @@ const styles = StyleSheet.create({
   todayButtonPressed: {
     backgroundColor: Colors.accentStrong,
   },
+  todayButtonCompact: {
+    width: '100%',
+  },
   todayButtonText: {
     color: Colors.primary,
     fontSize: Typography.sizes.small,
@@ -357,8 +372,8 @@ const styles = StyleSheet.create({
     lineHeight: Typography.lineHeights.small,
   },
   errorCard: {
-    backgroundColor: '#FCEAEA',
-    borderColor: '#F2C7C7',
+    backgroundColor: Colors.errorSurface,
+    borderColor: Colors.errorBorder,
     borderRadius: Radii.card,
     borderWidth: 1,
     padding: Spacing.lg,
@@ -369,6 +384,8 @@ const styles = StyleSheet.create({
     lineHeight: Typography.lineHeights.small,
   },
   summaryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: Spacing.sm,
   },
   summaryGridWide: {
@@ -380,7 +397,10 @@ const styles = StyleSheet.create({
     borderRadius: Radii.card,
     borderWidth: 1,
     padding: Spacing.lg,
-    width: '100%',
+    flexBasis: '47%',
+    flexGrow: 1,
+    minWidth: 0,
+    width: 'auto',
   },
   summaryMetricWide: {
     flex: 1,

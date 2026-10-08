@@ -8,7 +8,7 @@ import { PrimaryButton, SecondaryButton } from '@/components/buttons';
 import { FormInput } from '@/components/form-input';
 import { NutritionCard } from '@/components/nutrition-card';
 import { ScreenContainer } from '@/components/screen-container';
-import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { Breakpoints, Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { useNutritionLabelScan } from '@/context/nutrition-label-scan';
 import type {
   NutritionLabelReviewErrors,
@@ -92,7 +92,7 @@ export default function ReviewNutritionLabelScreen() {
   );
   const [errors, setErrors] = useState<NutritionLabelReviewErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
-  const wide = width >= 640;
+  const wide = width >= Breakpoints.formColumns;
 
   function updateField<K extends keyof NutritionLabelReviewFormValues>(
     field: K,
@@ -328,8 +328,8 @@ const styles = StyleSheet.create({
     width: 'auto',
   },
   errorCard: {
-    backgroundColor: '#FCEAEA',
-    borderColor: '#F2C7C7',
+    backgroundColor: Colors.errorSurface,
+    borderColor: Colors.errorBorder,
     borderRadius: Radii.card,
     borderWidth: 1,
     padding: Spacing.lg,

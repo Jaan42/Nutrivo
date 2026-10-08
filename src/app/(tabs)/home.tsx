@@ -14,7 +14,7 @@ import { CircularProgress } from '@/components/circular-progress';
 import { NutritionCard } from '@/components/nutrition-card';
 import { ProgressBar } from '@/components/progress-bar';
 import { ScreenContainer } from '@/components/screen-container';
-import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { Breakpoints, Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { useHomeDashboard } from '@/hooks/use-home-dashboard';
 import { MEAL_TYPES, type MealType } from '@/types/food-log';
 import {
@@ -26,8 +26,6 @@ import {
   getLocalDateKey,
   millisecondsUntilNextLocalDay,
 } from '@/utils/date';
-
-const WIDE_DASHBOARD_BREAKPOINT = 800;
 
 function useLocalToday() {
   const [today, setToday] = useState(() => new Date());
@@ -139,7 +137,8 @@ function MessageCard({ message, error = false }: { message: string; error?: bool
 
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
-  const wide = width >= WIDE_DASHBOARD_BREAKPOINT;
+  const compact = width > 0 && width < Breakpoints.compact;
+  const wide = width >= Breakpoints.dashboard;
   const today = useLocalToday();
   const dateKey = getLocalDateKey(today);
   const dashboard = useHomeDashboard(dateKey);
@@ -207,7 +206,7 @@ export default function HomeScreen() {
       {dashboard.profileError ? <MessageCard error message={dashboard.profileError} /> : null}
       {dashboard.foodLogsError ? <MessageCard error message={dashboard.foodLogsError} /> : null}
       {!dashboard.profileError && (!profile || !profile.isComplete) ? (
-        <View style={styles.profileNotice}>
+        <View style={[styles.profileNotice, compact && styles.profileNoticeCompact]}>
           <View style={styles.profileNoticeCopy}>
             <Text style={styles.profileNoticeTitle}>Complete your nutrition profile</Text>
             <Text style={styles.profileNoticeText}>
@@ -217,7 +216,11 @@ export default function HomeScreen() {
           <Pressable
             accessibilityRole="button"
             onPress={() => router.push('/profile-setup')}
-            style={({ pressed }) => [styles.noticeAction, pressed && styles.noticeActionPressed]}>
+            style={({ pressed }) => [
+              styles.noticeAction,
+              compact && styles.noticeActionCompact,
+              pressed && styles.noticeActionPressed,
+            ]}>
             <Text style={styles.noticeActionText}>Set up</Text>
           </Pressable>
         </View>
@@ -228,8 +231,13 @@ export default function HomeScreen() {
           title="Daily intake"
           subtitle="Calories consumed today"
           style={[styles.primaryCard, wide && styles.calorieCardWide]}>
-          <View style={[styles.calorieContent, wide && styles.calorieContentWide]}>
-            <View style={styles.calorieCopy}>
+          <View
+            style={[
+              styles.calorieContent,
+              compact && styles.calorieContentCompact,
+              wide && styles.calorieContentWide,
+            ]}>
+            <View style={[styles.calorieCopy, compact && styles.calorieCopyCompact]}>
               <Text style={styles.calorieValue}>{formatNutritionValue(totals.calories)}</Text>
               <Text style={styles.calorieTarget}>
                 of {formatNutritionValue(calorieTarget)} kcal
@@ -244,13 +252,15 @@ export default function HomeScreen() {
                       : 'Target not set'}
               </Text>
             </View>
-            <CircularProgress
-              accessibilityLabel={`${calorieProgress.percentage}% of daily calorie target`}
-              progress={calorieProgress.visualProgress}
-              size={wide ? 136 : 124}>
-              <Text style={styles.ringPercentage}>{calorieProgress.percentage}%</Text>
-              <Text style={styles.ringLabel}>of target</Text>
-            </CircularProgress>
+            <View style={compact ? styles.ringCompact : undefined}>
+              <CircularProgress
+                accessibilityLabel={`${calorieProgress.percentage}% of daily calorie target`}
+                progress={calorieProgress.visualProgress}
+                size={wide ? 136 : compact ? 112 : 124}>
+                <Text style={styles.ringPercentage}>{calorieProgress.percentage}%</Text>
+                <Text style={styles.ringLabel}>of target</Text>
+              </CircularProgress>
+            </View>
           </View>
         </NutritionCard>
 
@@ -397,8 +407,8 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
   },
   errorCard: {
-    backgroundColor: '#FCEAEA',
-    borderColor: '#F2C7C7',
+    backgroundColor: Colors.errorSurface,
+    borderColor: Colors.errorBorder,
     borderWidth: 1,
   },
   messageText: {
@@ -416,6 +426,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.lg,
     padding: Spacing.lg,
+  },
+  profileNoticeCompact: {
+    alignItems: 'stretch',
+    flexDirection: 'column',
   },
   profileNoticeCopy: {
     flex: 1,
@@ -438,6 +452,11 @@ const styles = StyleSheet.create({
     borderRadius: Radii.pill,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
+  },
+  noticeActionCompact: {
+    alignSelf: 'flex-start',
+    minHeight: 44,
+    justifyContent: 'center',
   },
   noticeActionPressed: {
     backgroundColor: Colors.primaryPressed,
@@ -473,9 +492,19 @@ const styles = StyleSheet.create({
   calorieContentWide: {
     flex: 1,
   },
+  calorieContentCompact: {
+    alignItems: 'center',
+    flexDirection: 'column',
+  },
   calorieCopy: {
     flex: 1,
     minWidth: 0,
+  },
+  calorieCopyCompact: {
+    alignItems: 'center',
+  },
+  ringCompact: {
+    alignItems: 'center',
   },
   calorieValue: {
     color: Colors.primary,

@@ -13,7 +13,7 @@ import { PrimaryButton } from '@/components/buttons';
 import { NutritionCard } from '@/components/nutrition-card';
 import { ProgressBar } from '@/components/progress-bar';
 import { ScreenContainer } from '@/components/screen-container';
-import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { Breakpoints, Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { useNutritionTargets } from '@/hooks/use-nutrition-targets';
 import { useWeeklyFoodLogs } from '@/hooks/use-weekly-food-logs';
 import { calculateProgress } from '@/utils/dashboard-calculations';
@@ -31,7 +31,6 @@ import {
 } from '@/utils/weekly-insights';
 
 const DAYS_IN_WINDOW = 7;
-const WIDE_BREAKPOINT = 760;
 
 function formatNumber(value: number, maximumFractionDigits = 1): string {
   const safeValue = Number.isFinite(value) ? Math.max(0, value) : 0;
@@ -379,7 +378,7 @@ function WeeklyContent({
 
 export default function InsightsScreen() {
   const { width } = useWindowDimensions();
-  const wide = width >= WIDE_BREAKPOINT;
+  const wide = width >= Breakpoints.desktop;
   const todayDateKey = useCurrentLocalDateKey();
   const dateKeys = useMemo(
     () => getRecentLocalDateKeys(DAYS_IN_WINDOW, todayDateKey),

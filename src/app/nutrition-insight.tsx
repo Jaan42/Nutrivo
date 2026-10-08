@@ -8,7 +8,7 @@ import { PrimaryButton, SecondaryButton } from '@/components/buttons';
 import { NutritionCard } from '@/components/nutrition-card';
 import { ProgressBar } from '@/components/progress-bar';
 import { ScreenContainer } from '@/components/screen-container';
-import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { Breakpoints, Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { useNutritionLabelScan } from '@/context/nutrition-label-scan';
 import { useNutritionTargets } from '@/hooks/use-nutrition-targets';
 import { FoodLogNotSignedInError, saveFoodLog } from '@/services/food-logs';
@@ -45,7 +45,7 @@ function inputFromPending(entry: PendingFoodEntry) {
 
 export default function NutritionInsightScreen() {
   const { width } = useWindowDimensions();
-  const wide = width >= 700;
+  const wide = width >= Breakpoints.tablet;
   const { pendingFoodEntry, reset } = useNutritionLabelScan();
   const targetState = useNutritionTargets();
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -520,8 +520,8 @@ const styles = StyleSheet.create({
     lineHeight: Typography.lineHeights.caption,
   },
   errorCard: {
-    backgroundColor: '#FCEAEA',
-    borderColor: '#F2C7C7',
+    backgroundColor: Colors.errorSurface,
+    borderColor: Colors.errorBorder,
     borderRadius: Radii.card,
     borderWidth: 1,
     gap: Spacing.md,

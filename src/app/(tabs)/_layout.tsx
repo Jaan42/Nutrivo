@@ -7,11 +7,12 @@ import {
   useWindowDimensions,
   type ColorValue,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/buttons';
 import { ScreenContainer } from '@/components/screen-container';
 import { TabIcon, type TabIconName } from '@/components/tab-icon';
-import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { Breakpoints, Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { useUserProfile } from '@/hooks/use-user-profile';
 
 const tabIcon = (name: TabIconName, emphasized = false) =>
@@ -21,7 +22,10 @@ const tabIcon = (name: TabIconName, emphasized = false) =>
 
 export default function TabsLayout() {
   const { width } = useWindowDimensions();
-  const usesSideBySideLabels = Platform.OS === 'web' && width >= 768;
+  const insets = useSafeAreaInsets();
+  const usesSideBySideLabels = Platform.OS === 'web' && width >= Breakpoints.desktop;
+  const bottomPadding =
+    Platform.OS === 'web' ? Spacing.sm : Math.max(Spacing.sm, insets.bottom);
   const profileState = useUserProfile();
   const loading =
     profileState.authLoading ||
@@ -74,8 +78,8 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: Colors.surface,
           borderTopColor: Colors.border,
-          height: usesSideBySideLabels ? 76 : 88,
-          paddingBottom: Spacing.sm,
+          height: (usesSideBySideLabels ? 68 : 72) + bottomPadding,
+          paddingBottom: bottomPadding,
           paddingTop: usesSideBySideLabels ? Spacing.xs : Spacing.sm,
         },
       }}>
@@ -100,8 +104,9 @@ export default function TabsLayout() {
           tabBarActiveTintColor: Colors.primary,
           tabBarIcon: tabIcon('add', true),
           tabBarItemStyle: {
-            backgroundColor: Colors.accent,
+            backgroundColor: usesSideBySideLabels ? Colors.surface : Colors.accent,
             borderRadius: Radii.button,
+            marginHorizontal: usesSideBySideLabels ? Spacing.sm : 0,
             marginVertical: Spacing.xs,
           },
         }}

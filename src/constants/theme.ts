@@ -12,6 +12,8 @@ export const Colors = {
   border: '#E5EBE5',
   progressTrack: '#EDF2E9',
   error: '#C53C3C',
+  errorSurface: '#FCEAEA',
+  errorBorder: '#F2C7C7',
 } as const;
 
 export const Spacing = {
@@ -63,6 +65,15 @@ export const ContentWidths = {
   form: 440,
   page: 760,
   dashboard: 1100,
+} as const;
+
+export const Breakpoints = {
+  compact: 380,
+  formColumns: 640,
+  tablet: 720,
+  desktop: 760,
+  profileColumns: 960,
+  dashboard: 800,
 } as const;
 
 export const ControlHeight = 52;

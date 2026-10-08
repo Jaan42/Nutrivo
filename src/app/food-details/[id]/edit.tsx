@@ -15,7 +15,7 @@ import { PrimaryButton, SecondaryButton } from '@/components/buttons';
 import { FormInput } from '@/components/form-input';
 import { NutritionCard } from '@/components/nutrition-card';
 import { ScreenContainer } from '@/components/screen-container';
-import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { Breakpoints, Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { useFoodLog } from '@/hooks/use-food-log';
 import { FoodLogNotSignedInError, updateFoodLog } from '@/services/food-logs';
 import {
@@ -326,7 +326,7 @@ function EditFoodForm({ foodLog, wide }: { foodLog: FoodLogRecord; wide: boolean
 
 export default function EditFoodScreen() {
   const { width } = useWindowDimensions();
-  const wide = width >= 680;
+  const wide = width >= Breakpoints.tablet;
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const foodLogId = Array.isArray(params.id) ? params.id[0] : params.id ?? null;
   const foodLogState = useFoodLog(foodLogId);
@@ -550,8 +550,8 @@ const styles = StyleSheet.create({
     lineHeight: Typography.lineHeights.small,
   },
   errorCard: {
-    backgroundColor: '#FCEAEA',
-    borderColor: '#F2C7C7',
+    backgroundColor: Colors.errorSurface,
+    borderColor: Colors.errorBorder,
     borderRadius: Radii.card,
     borderWidth: 1,
     padding: Spacing.lg,

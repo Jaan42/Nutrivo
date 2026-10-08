@@ -42,6 +42,7 @@ export function FormInput({
           style={[
             styles.input,
             rightAccessory ? styles.inputWithAccessory : undefined,
+            inputProps.editable === false && styles.inputDisabled,
             focused && styles.inputFocused,
             error && styles.inputError,
             style,
@@ -93,6 +94,10 @@ const styles = StyleSheet.create({
   },
   inputFocused: {
     borderColor: Colors.primary,
+  },
+  inputDisabled: {
+    backgroundColor: Colors.progressTrack,
+    color: Colors.textMuted,
   },
   inputError: {
     borderColor: Colors.error,

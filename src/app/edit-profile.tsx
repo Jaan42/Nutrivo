@@ -15,7 +15,7 @@ import { FormInput } from '@/components/form-input';
 import { NutritionCard } from '@/components/nutrition-card';
 import { ScreenContainer } from '@/components/screen-container';
 import { SelectionField } from '@/components/selection-field';
-import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { Breakpoints, Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { useUserProfile, type UserNutritionProfile } from '@/hooks/use-user-profile';
 import {
   NutritionProfileSaveError,
@@ -32,8 +32,6 @@ import {
 } from '@/types/nutrition-profile';
 import { calculateNutritionProfile } from '@/utils/nutrition-calculations';
 import { parseProfileForm, validateProfileForm } from '@/utils/profile-validation';
-
-const WIDE_BREAKPOINT = 720;
 
 type EditProfileErrors = ProfileValidationErrors & {
   name?: string;
@@ -315,7 +313,7 @@ function EditProfileForm({
 
 export default function EditProfileScreen() {
   const { width } = useWindowDimensions();
-  const wide = width >= WIDE_BREAKPOINT;
+  const wide = width >= Breakpoints.tablet;
   const profileState = useUserProfile();
   const loading =
     profileState.authLoading ||
@@ -493,8 +491,8 @@ const styles = StyleSheet.create({
     lineHeight: Typography.lineHeights.small,
   },
   errorCard: {
-    backgroundColor: '#FCEAEA',
-    borderColor: '#F2C7C7',
+    backgroundColor: Colors.errorSurface,
+    borderColor: Colors.errorBorder,
     borderRadius: Radii.card,
     borderWidth: 1,
     padding: Spacing.lg,

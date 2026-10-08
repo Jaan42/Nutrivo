@@ -14,12 +14,10 @@ import { AppHeader } from '@/components/app-header';
 import { PrimaryButton, SecondaryButton } from '@/components/buttons';
 import { NutritionCard } from '@/components/nutrition-card';
 import { ScreenContainer } from '@/components/screen-container';
-import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { Breakpoints, Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { useNutritionLabelScan } from '@/context/nutrition-label-scan';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { signOutAccount } from '@/services/auth';
-
-const WIDE_BREAKPOINT = 720;
 
 type InfoItem = {
   label: string;
@@ -81,7 +79,8 @@ function SettingsDisclosure({
 
 export default function ProfileScreen() {
   const { width } = useWindowDimensions();
-  const wide = width >= WIDE_BREAKPOINT;
+  const gridWide = width >= Breakpoints.tablet;
+  const columnsWide = width >= Breakpoints.profileColumns;
   const profileState = useUserProfile();
   const { reset: resetNutritionLabelState } = useNutritionLabelScan();
   const [aboutExpanded, setAboutExpanded] = useState(false);
@@ -196,7 +195,7 @@ export default function ProfileScreen() {
         subtitle="Your account, nutrition estimates, and settings."
       />
 
-      <View style={[styles.profileColumns, wide && styles.profileColumnsWide]}>
+      <View style={[styles.profileColumns, columnsWide && styles.profileColumnsWide]}>
         <View style={styles.profileColumn}>
           <NutritionCard title="Account">
             <View style={styles.accountHeader}>
@@ -213,7 +212,7 @@ export default function ProfileScreen() {
           </NutritionCard>
 
           <NutritionCard title="Personal Profile">
-            <InfoGrid items={personalItems} wide={wide} />
+            <InfoGrid items={personalItems} wide={gridWide} />
           </NutritionCard>
 
           <PrimaryButton label="Edit Profile" onPress={() => router.push('/edit-profile')} />
@@ -223,7 +222,7 @@ export default function ProfileScreen() {
           <NutritionCard
             title="Nutrition Summary"
             subtitle="Estimates based on your current profile.">
-            <InfoGrid items={nutritionItems} wide={wide} />
+            <InfoGrid items={nutritionItems} wide={gridWide} />
           </NutritionCard>
         </View>
       </View>
@@ -423,7 +422,10 @@ const styles = StyleSheet.create({
     lineHeight: Typography.lineHeights.body,
   },
   settingsSection: {
+    alignSelf: 'center',
     gap: Spacing.md,
+    maxWidth: 760,
+    width: '100%',
   },
   sectionTitle: {
     color: Colors.text,
@@ -489,8 +491,8 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
   },
   errorCard: {
-    backgroundColor: '#FCEAEA',
-    borderColor: '#F2C7C7',
+    backgroundColor: Colors.errorSurface,
+    borderColor: Colors.errorBorder,
     borderRadius: Radii.card,
     borderWidth: 1,
     padding: Spacing.lg,
@@ -513,7 +515,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
   },
   signOutButtonPressed: {
-    backgroundColor: '#FCEAEA',
+    backgroundColor: Colors.errorSurface,
   },
   signOutText: {
     color: Colors.error,

@@ -15,7 +15,7 @@ import { BackButton } from '@/components/back-button';
 import { PrimaryButton, SecondaryButton } from '@/components/buttons';
 import { NutritionCard } from '@/components/nutrition-card';
 import { ScreenContainer } from '@/components/screen-container';
-import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { Breakpoints, Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { useFoodLog } from '@/hooks/use-food-log';
 import { deleteFoodLog, FoodLogNotSignedInError } from '@/services/food-logs';
 import type { OptionalNutritionValue } from '@/types/food-log';
@@ -73,7 +73,7 @@ function NutrientGrid({ nutrients, wide }: { nutrients: NutrientDisplay[]; wide:
 
 export default function FoodDetailsScreen() {
   const { width } = useWindowDimensions();
-  const wide = width >= 680;
+  const wide = width >= Breakpoints.tablet;
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const foodLogId = Array.isArray(params.id) ? params.id[0] : params.id ?? null;
   const foodLogState = useFoodLog(foodLogId);
@@ -377,8 +377,8 @@ const styles = StyleSheet.create({
     lineHeight: Typography.lineHeights.body,
   },
   errorCard: {
-    backgroundColor: '#FCEAEA',
-    borderColor: '#F2C7C7',
+    backgroundColor: Colors.errorSurface,
+    borderColor: Colors.errorBorder,
     borderRadius: Radii.card,
     borderWidth: 1,
     padding: Spacing.lg,
@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
   },
   deleteButtonPressed: {
-    backgroundColor: '#FCEAEA',
+    backgroundColor: Colors.errorSurface,
   },
   deleteButtonText: {
     color: Colors.error,

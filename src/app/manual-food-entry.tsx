@@ -8,7 +8,7 @@ import { PrimaryButton, SecondaryButton } from '@/components/buttons';
 import { FormInput } from '@/components/form-input';
 import { NutritionCard } from '@/components/nutrition-card';
 import { ScreenContainer } from '@/components/screen-container';
-import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { Breakpoints, Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { useNutritionLabelScan } from '@/context/nutrition-label-scan';
 import {
   MEAL_TYPES,
@@ -207,7 +207,7 @@ function MealSelector({ value, error, disabled = false, wide, onChange }: MealSe
 
 export default function ManualFoodEntryScreen() {
   const { width } = useWindowDimensions();
-  const wide = width >= 640;
+  const wide = width >= Breakpoints.formColumns;
   const { clearPendingFoodEntry, stageFoodEntry } = useNutritionLabelScan();
   const [values, setValues] = useState<ManualFoodFormValues>(EMPTY_FORM);
   const [errors, setErrors] = useState<ManualFoodValidationErrors>({});
@@ -565,8 +565,8 @@ const styles = StyleSheet.create({
   },
   saveErrorCard: {
     alignItems: 'stretch',
-    backgroundColor: '#FCEAEA',
-    borderColor: '#F2C7C7',
+    backgroundColor: Colors.errorSurface,
+    borderColor: Colors.errorBorder,
     borderRadius: Radii.card,
     borderWidth: 1,
     gap: Spacing.md,

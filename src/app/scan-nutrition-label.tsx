@@ -16,7 +16,7 @@ import { AppHeader } from '@/components/app-header';
 import { BackButton } from '@/components/back-button';
 import { PrimaryButton, SecondaryButton } from '@/components/buttons';
 import { ScreenContainer } from '@/components/screen-container';
-import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { Breakpoints, Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { useNutritionLabelScan } from '@/context/nutrition-label-scan';
 import {
   NutritionLabelAuthenticationError,
@@ -48,7 +48,7 @@ export default function ScanNutritionLabelScreen() {
   const [torchEnabled, setTorchEnabled] = useState(false);
   const [flowError, setFlowError] = useState<string | null>(null);
   const [extractionError, setExtractionError] = useState<string | null>(null);
-  const wide = windowWidth >= 640;
+  const wide = windowWidth >= Breakpoints.formColumns;
   const cameraHeight = Math.min(520, Math.max(340, windowHeight - 300));
 
   useFocusEffect(
@@ -548,8 +548,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   errorCard: {
-    backgroundColor: '#FCEAEA',
-    borderColor: '#F2C7C7',
+    backgroundColor: Colors.errorSurface,
+    borderColor: Colors.errorBorder,
     borderRadius: Radii.card,
     borderWidth: 1,
     padding: Spacing.lg,

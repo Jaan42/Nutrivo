@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-na
 
 import { AppHeader } from '@/components/app-header';
 import { ScreenContainer } from '@/components/screen-container';
-import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { Breakpoints, Colors, Radii, Spacing, Typography } from '@/constants/theme';
 
 type FoodOptionCardProps = {
   title: string;
@@ -59,7 +59,7 @@ function FoodOptionCard({
 
 export default function AddFoodScreen() {
   const { width } = useWindowDimensions();
-  const wide = width >= 720;
+  const wide = width >= Breakpoints.tablet;
 
   return (
     <ScreenContainer width="page" contentStyle={styles.content}>
@@ -71,7 +71,7 @@ export default function AddFoodScreen() {
       <View style={[styles.options, wide && styles.optionsWide]}>
         <FoodOptionCard
           accessibilityHint="Opens camera and gallery options for a Nutrition Facts label"
-          description="Scan a packaged food label to capture its nutrition information."
+          description="Use your camera or choose a gallery image of a packaged food label."
           glyph={'\u25A3'}
           onPress={() => router.push('/scan-nutrition-label')}
           title="Scan Nutrition Label"
@@ -79,7 +79,7 @@ export default function AddFoodScreen() {
         />
         <FoodOptionCard
           accessibilityHint="Opens the manual food entry form"
-          description="Enter serving details and nutrition values yourself."
+          description="Type serving details and nutrition values in a simple form."
           glyph={'\u270E'}
           onPress={() => router.push('/manual-food-entry')}
           title="Enter Manually"
@@ -106,13 +106,15 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     borderRadius: Radii.feature,
     borderWidth: 1,
-    gap: Spacing.xxl,
-    minHeight: 240,
-    padding: Spacing.xxl,
+    gap: Spacing.xl,
+    minHeight: 204,
+    padding: Spacing.xl,
   },
   optionCardWide: {
     flex: 1,
     minWidth: 0,
+    minHeight: 240,
+    padding: Spacing.xxl,
   },
   optionCardPressed: {
     backgroundColor: Colors.accent,

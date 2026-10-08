@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
+import { BackButton } from '@/components/back-button';
 import { PrimaryButton } from '@/components/buttons';
 import { FormInput } from '@/components/form-input';
 import { PasswordInput } from '@/components/password-input';
@@ -43,13 +44,10 @@ export default function RegisterScreen() {
 
   return (
     <ScreenContainer width="form" contentStyle={styles.content}>
-      <Pressable
-        accessibilityRole="button"
+      <BackButton
         accessibilityLabel="Back to onboarding"
         onPress={() => router.replace('/onboarding')}
-        style={styles.back}>
-        <Text style={styles.backGlyph}>‹</Text>
-      </Pressable>
+      />
 
       <View style={styles.heading}>
         <Text style={styles.title}>Create Account</Text>
@@ -149,18 +147,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     gap: Spacing.xxl,
-  },
-  back: {
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    justifyContent: 'center',
-    minHeight: 44,
-    minWidth: 44,
-  },
-  backGlyph: {
-    color: Colors.text,
-    fontSize: Typography.sizes.metric,
-    lineHeight: Typography.lineHeights.metric,
   },
   heading: {
     gap: Spacing.xs,
