@@ -134,6 +134,31 @@ export function subscribeFoodLogsForDate(
   );
 }
 
+export function subscribeFoodLogsForDateRange(
+  uid: string,
+  startDateKey: string,
+  endDateKey: string,
+  onData: (foodLogs: FoodLogRecord[]) => void,
+  onError: () => void,
+): Unsubscribe {
+  const logsInDateRange = query(
+    collection(db, 'users', uid, 'foodLogs'),
+    where('dateKey', '>=', startDateKey),
+    where('dateKey', '<=', endDateKey),
+  );
+
+  return onSnapshot(
+    logsInDateRange,
+    (snapshot) => {
+      const foodLogs = snapshot.docs.map((snapshotDocument) =>
+        normalizeFoodLog(snapshotDocument.id, snapshotDocument.data()),
+      );
+      onData(foodLogs);
+    },
+    onError,
+  );
+}
+
 export function subscribeFoodLog(
   uid: string,
   foodLogId: string,

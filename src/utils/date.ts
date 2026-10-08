@@ -54,6 +54,23 @@ export function getNextLocalDateKey(dateKey: string): string {
   return addLocalDateKeyDays(dateKey, 1);
 }
 
+/** Returns local dateKeys in chronological order, ending with the supplied local day. */
+export function getRecentLocalDateKeys(
+  dayCount: number,
+  endDateKey = getLocalDateKey(),
+): string[] {
+  if (!Number.isInteger(dayCount) || dayCount <= 0) {
+    throw new Error('Day count must be a positive whole number.');
+  }
+  if (!parseLocalDateKey(endDateKey)) {
+    throw new Error('A valid ending local dateKey is required.');
+  }
+
+  return Array.from({ length: dayCount }, (_, index) =>
+    addLocalDateKeyDays(endDateKey, index - (dayCount - 1)),
+  );
+}
+
 export function isTodayLocalDateKey(dateKey: string, today = new Date()): boolean {
   return dateKey === getLocalDateKey(today);
 }
